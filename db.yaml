@@ -6,21 +6,21 @@
     login_host: db-dev.devopsb73.tech
 
   tasks:
-    - name: install my sql
-      ansible.builtin.dnf:
-        name: mysql-server
-        state: latest
-    - name: enable and start mysql
-      ansible.builtin.service:
-        name: mysql-server
-        state: started
-        enabled: yes
+  - name: install my sql
+    ansible.builtin.dnf:
+      name: mysql-server
+      state: latest
+  - name: enable and start mysql
+    ansible.builtin.service:
+     name: mysql-server
+     state: started
+     enabled: yes
 
-    - name: check db connection
-      community.mysql.mysql_info:
-        login_user: root
-        login_password: ExpenseApp@1
-        login_host: "{{ login_host }}"
-        filter: version
-        ignore_errors: yes
-        register: mysql_connection_output
+  - name: check db connection
+    community.mysql.mysql_info:
+      login_user: root
+      login_password: ExpenseApp@1
+      login_host: "{{ login_host }}"
+      filter: version
+      ignore_errors: yes
+      register: mysql_connection_output
