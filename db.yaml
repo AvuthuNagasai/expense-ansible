@@ -31,7 +31,7 @@
       community.mysql.mysql_info:
         login_user: root
         login_password: "{{ mysql_root_password }}"
-        login_host: "{{ login_host }}"
+        login_host: "172.31.38.51"
         filter: version
       ignore_errors: yes
       register: mysql_connection_output
