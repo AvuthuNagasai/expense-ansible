@@ -1,5 +1,5 @@
 - name: configure db server
-  hosts: localhost
+  hosts: db
   become: yes
 
   vars:
@@ -10,7 +10,7 @@
       ansible.builtin.dnf:
         name: mysql-server
         state: latest
-    - name: enable mysql
+    - name: enable and start mysql
       ansible.builtin.service:
         name: mysql-server
         state: started
