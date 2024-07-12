@@ -33,13 +33,12 @@
 #        src: /tmp/backend.zip
 #        dest: /app
 #        remote_src: yes
-#
+#----------------------------------------------------------------------#
 - name: configure backend server
   become: yes
   hosts: backend
-
   vars:
-    login_host: db-dev.devopsb73.tech
+    login_host: db.daws78s.online
     login_password: ExpenseApp@1
   tasks:
     - name: disable default nodejs
@@ -50,8 +49,11 @@
 
     - name: install nodejs
       ansible.builtin.dnf: # only works for Redhat family
-        name: nodejs
+        name: "{{ item }}"
         state: installed
+      loop:
+        - nodejs
+        - mysql
 
     - name: create expense user
       ansible.builtin.user:
@@ -73,16 +75,15 @@
         dest: /app
         remote_src: yes
 
-    - name: install dependencies
+    - name: install npm dependencies
       ansible.builtin.command: npm install
       args:
         chdir: /app
 
-    - name: Setup SystemD Expense Backend Service
+    - name: copy backend service
       ansible.builtin.copy:
         src: backend.service
         dest: /etc/systemd/system/backend.service
-
 
     - name: install python mysql dependencies
       ansible.builtin.pip:
@@ -100,14 +101,14 @@
         state: import
         name: all
 
-
     - name: daemon reload
       ansible.builtin.systemd_service:
         daemon_reload: true
 
-    - name: Restart service
+    - name: start and enable backend service
       ansible.builtin.service:
         name: backend
         state: started
         enabled: yes
+
 
