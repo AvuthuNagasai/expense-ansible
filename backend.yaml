@@ -37,8 +37,10 @@
 - name: configure backend server
   become: yes
   hosts: backend
-  vars:
 
+  vars:
+    login_host: db-dev.devopsb73.tech
+    login_password: ExpenseApp@1
   tasks:
     - name: disable default nodejs
       ansible.builtin.command: dnf module disable nodejs -y
@@ -70,4 +72,42 @@
         src: /tmp/backend.zip # by default checks in ansible server
         dest: /app
         remote_src: yes
+
+    - name: install dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+
+    - name: Setup SystemD Expense Backend Service
+      ansible.builtin.copy:
+        src: backend.service
+        dest: /etc/systemd/system/backend.service
+
+
+    - name: install python mysql dependencies
+      ansible.builtin.pip:
+        name:
+          - PyMySQL # to connect MySQL DB from Ansible
+          - cryptography
+        executable: pip3.9 # pip3.11 if python version is 3.11
+
+    - name: import data into mysql
+      community.mysql.mysql_db:
+        login_user: root
+        login_password: "{{ login_password }}"
+        login_host: "{{ login_host }}"
+        target: /app/schema/backend.sql
+        state: import
+        name: all
+
+
+    - name: daemon reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Restart service
+      ansible.builtin.service:
+        name: backend
+        state: started
+        enabled: yes
 
